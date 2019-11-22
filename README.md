@@ -20,43 +20,39 @@ This Action for [firebase-tools](https://github.com/firebase/firebase-tools) ena
 To authenticate with Firebase, and deploy to Firebase Hosting:
 
 ```yaml
-name: Build and Deploy
+name: Test and Deploy Cloud Functions
 on:
   push:
     branches:
       - master
 
+env:
+  PROJECT_PATH: ./cloud-functions
+
 jobs:
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@master
       - name: Install Dependencies
-        run: npm install
-      - name: Build
-        run: npm run build-prod
-      - name: Archive Production Artifact
-        uses: actions/upload-artifact@master
-        with:
-          name: dist
-          path: dist
+        run: npm --prefix cloud-functions/functions install
+      - name: Test Cloud Functions
+        run: npm --prefix cloud-functions/functions test
   deploy:
     name: Deploy
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@master
-      - name: Download Artifact
-        uses: actions/download-artifact@master
-        with:
-          name: dist
+      - name: Install Dependencies
+        run: npm --prefix cloud-functions/functions install
       - name: Deploy to Firebase
         uses: stripysock/firebase-action@stripysock
         with:
-          args: deploy --only hosting:prod
+          args: deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 ```
