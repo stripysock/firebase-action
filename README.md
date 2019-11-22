@@ -54,7 +54,7 @@ jobs:
         with:
           name: dist
       - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
+        uses: stripysock/firebase-action@stripysock
         with:
           args: deploy --only hosting:prod
         env:
